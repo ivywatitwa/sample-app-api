@@ -6,24 +6,23 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from './users/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
-import { SessionSerializer } from './auth/session.serializer';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './guards/auth.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
-  imports: [UsersModule,
+  imports: [
+    UsersModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
-        host: configService.get('HOST'),
-        port: +configService.get('PORT'),
+        host: configService.get('DB_HOST'),
+        port: +configService.get('DB_PORT'),
         username: configService.get('DB_USERNAME'),
-        password: configService.get('PASSWORD'),
-        database: configService.get('DATABASE'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_NAME'),
         entities: [User],
+        autoLoadEntities: true,
         synchronize: true,
       }),
       inject: [ConfigService],
@@ -37,10 +36,9 @@ import { JwtStrategy } from './strategies/jwt.strategy';
       inject: [ConfigService],
     }),
     ConfigModule.forRoot(),
-    AuthModule
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, JwtStrategy
-],
+  providers: [AppService, JwtStrategy],
 })
 export class AppModule {}
