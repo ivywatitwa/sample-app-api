@@ -13,12 +13,17 @@ export class UsersService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ){}
   async create(createUserDto: CreateUserDto) {
-   const users = this.userRepository.create(createUserDto);
-
-   return  await this.userRepository.save(users);
+    try {
+      const users = this.userRepository.create(createUserDto);
+      return await this.userRepository.save(users);
+    } catch (error) {
+      console.log('Error creating user:', error);
+      throw new Error('Failed to create user');
+    }
   }
+  
 
-    async findAll(): Promise<User[]> {
+  async findAll(): Promise<User[]> {
       return await this.userRepository.find();
     }
 
@@ -81,12 +86,6 @@ export class UsersService {
   }
 
   async comparePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
-    
-    console.log('plainPassword');
-    console.log(plainPassword);
-
-    console.log('hashedPassword');
-    console.log(hashedPassword);
     if (!plainPassword || !hashedPassword) {
       throw new Error('data and hash arguments required');
     }
